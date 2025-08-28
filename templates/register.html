@@ -1,32 +1,31 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-lg-5">
-        <div class="card shadow-lg border-0 rounded-lg mt-5">
-            <div class="card-header"><h3 class="text-center font-weight-light my-4">Create Account</h3></div>
-            <div class="card-body">
-                <form method="post">
-                    {% csrf_token %}
-                    {% for field in form %}
-                    <div class="form-floating mb-3">
-                        {{ field }}
-                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                         {% if field.errors %}
-                            <div class="invalid-feedback d-block">
-                                {{ field.errors.as_text }}
-                            </div>
-                        {% endif %}
-                    </div>
-                    {% endfor %}
-                    
-                    <div class="d-grid mt-4 mb-0">
-                        <button type="submit" class="btn btn-primary btn-block">Create Account</button>
-                    </div>
-                </form>
+<div class="d-flex align-items-center justify-content-center py-5">
+    <div class="card shadow-lg border-0" style="width: 100%; max-width: 420px;">
+        <div class="card-body p-4 p-md-5">
+            <div class="text-center mb-4">
+                <h1 class="h3 mb-3 fw-normal">Create an account</h1>
             </div>
-            <div class="card-footer text-center py-3">
-                <div class="small"><a href="{% url 'login' %}">Have an account? Go to login</a></div>
+            <form method="post">
+                {% csrf_token %}
+                
+                {% for field in form %}
+                <div class="form-floating mb-3">
+                    {{ field }}
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                     {% if field.help_text %}
+                        <small class="form-text text-muted">{{ field.help_text|safe }}</small>
+                    {% endif %}
+                </div>
+                {% endfor %}
+
+                <button class="w-100 btn btn-lg btn-primary" type="submit">Sign up</button>
+            </form>
+            <div class="text-center mt-3">
+                <small class="text-muted">
+                    Already have an account? <a href="{% url 'login' %}" class="text-decoration-none">Sign in</a>
+                </small>
             </div>
         </div>
     </div>

@@ -1,77 +1,92 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-lg-6">
-        <div class="text-center mb-5">
-            <h1 class="display-5 fw-bold">Check Your Booking Status</h1>
-            <p class="lead text-muted">Enter your booking ID to view the latest status of your trip.</p>
-        </div>
-        
-        <div class="card shadow-sm">
-            <div class="card-body p-4">
-                <form method="get" action="{% url 'booking_status' %}" class="row g-3 align-items-center">
-                    <div class="col">
-                        <label for="booking_id" class="visually-hidden">Booking ID</label>
-                        <input type="text" class="form-control form-control-lg" id="booking_id" name="booking_id" placeholder="e.g., BK001" required>
-                    </div>
-                    <div class="col-auto">
-                        <button type="submit" class="btn btn-primary btn-lg">Check Status</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        {% if booking %}
-        <div class="card shadow-sm mt-5">
-            {% with status=booking.status departure_time=booking.travelOption.departureTime %}
-                {% if status == 'Cancelled' %}
-                    {% with 'danger' as border_color %}
-                    <div class="card-header bg-danger-subtle border-{{ border_color }}">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0">Booking ID: {{ booking.id }}</h5>
-                            <span class="badge bg-danger">Cancelled</span>
-                        </div>
-                    </div>
-                    {% endwith %}
-                {% elif departure_time < now %}
-                     {% with 'info' as border_color %}
-                    <div class="card-header bg-info-subtle border-{{ border_color }}">
-                         <div class="d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0">Booking ID: {{ booking.id }}</h5>
-                            <span class="badge bg-info-subtle text-info-emphasis">Completed</span>
-                        </div>
-                    </div>
-                    {% endwith %}
-                {% else %}
-                     {% with 'success' as border_color %}
-                     <div class="card-header bg-success-subtle border-{{ border_color }}">
-                         <div class="d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0">Booking ID: {{ booking.id }}</h5>
-                            <span class="badge bg-success">Confirmed</span>
-                        </div>
-                    </div>
-                    {% endwith %}
-                {% endif %}
-            {% endwith %}
-            <div class="card-body">
-                <h5 class="card-title">{{ booking.travelOption.operator }} ({{ booking.travelOption.type }})</h5>
-                <p class="card-text">
-                    <i class="bi bi-geo-alt-fill"></i>
-                    {{ booking.travelOption.source }} to {{ booking.travelOption.destination }}
-                </p>
-                <p class="card-text">
-                    <i class="bi bi-calendar-event"></i>
-                    {{ booking.travelOption.departureTime|date:"F d, Y, P" }}
-                </p>
-                 <hr>
-                 <div class="d-flex justify-content-between">
-                    <span>{{ booking.seats }} Seat(s)</span>
-                    <strong class="text-primary">${{ booking.totalPrice|floatformat:2 }}</strong>
-                </div>
-            </div>
-        </div>
-        {% endif %}
+<div class="d-flex flex-column align-items-center justify-content-center py-5">
+    <div class="text-center" style="max-width: 480px;">
+        <h1 class="display-6 fw-bolder text-body-emphasis">Check Your Booking Status</h1>
+        <p class="lead text-secondary mt-2">
+            Enter your booking ID to view the latest status of your trip.
+        </p>
     </div>
+    <div class="card shadow-lg border-0 mt-4" style="width: 100%; max-width: 480px;">
+        <div class="card-body p-4 p-md-5">
+            <form method="post" class="d-grid gap-3">
+                {% csrf_token %}
+                <div>
+                    <label for="{{ form.booking_id.id_for_label }}" class="form-label visually-hidden">Booking ID</label>
+                    {{ form.booking_id }}
+                </div>
+                <button type="submit" class="btn btn-primary btn-lg">Check Status</button>
+            </form>
+        </div>
+    </div>
+
+    {% if booking %}
+    {% with travel_option=booking.travelOption %}
+    <div class="card shadow-lg border-0 mt-5 animate-fade-in" style="width: 100%; max-width: 550px;">
+        {% with status=booking.status departure_time=travel_option.departureTime %}
+            {% if status == "Cancelled" %}
+                {% with status_text="Cancelled" border_color="danger" text_color="danger" bg_color="danger-subtle" %}
+                <div class="card-header bg-{{ bg_color }} border-{{ border_color }} border-4 border-bottom-0 border-top-0 border-end-0 d-flex justify-content-between align-items-center p-3">
+                    <div>
+                        <h5 class="card-title mb-0">{{ travel_option.operator }} ({{ travel_option.type }})</h5>
+                        <small class="text-muted">Booking ID: {{ booking.id }}</small>
+                    </div>
+                    <span class="badge bg-{{ border_color }} text-white fs-6">{{ status_text }}</span>
+                </div>
+                {% endwith %}
+            {% elif departure_time < now %}
+                {% with status_text="Completed" border_color="primary" text_color="primary" bg_color="primary-subtle" %}
+                <div class="card-header bg-{{ bg_color }} border-{{ border_color }} border-4 border-bottom-0 border-top-0 border-end-0 d-flex justify-content-between align-items-center p-3">
+                    <div>
+                        <h5 class="card-title mb-0">{{ travel_option.operator }} ({{ travel_option.type }})</h5>
+                        <small class="text-muted">Booking ID: {{ booking.id }}</small>
+                    </div>
+                    <span class="badge bg-{{ border_color }} text-white fs-6">{{ status_text }}</span>
+                </div>
+                {% endwith %}
+            {% else %}
+                {% with status_text="Confirmed" border_color="success" text_color="success" bg_color="success-subtle" %}
+                <div class="card-header bg-{{ bg_color }} border-{{ border_color }} border-4 border-bottom-0 border-top-0 border-end-0 d-flex justify-content-between align-items-center p-3">
+                    <div>
+                        <h5 class="card-title mb-0">{{ travel_option.operator }} ({{ travel_option.type }})</h5>
+                        <small class="text-muted">Booking ID: {{ booking.id }}</small>
+                    </div>
+                    <span class="badge bg-{{ border_color }} text-white fs-6">{{ status_text }}</span>
+                </div>
+                {% endwith %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="card-body p-3">
+            <div class="d-flex align-items-center text-dark mb-2">
+                <i class="bi bi-geo-alt-fill me-3 text-secondary"></i>
+                <span>{{ travel_option.source }} to {{ travel_option.destination }}</span>
+            </div>
+            <div class="d-flex align-items-center text-dark">
+                <i class="bi bi-calendar-event me-3 text-secondary"></i>
+                <span>{{ travel_option.departureTime|date:"l, F j, Y, P" }}</span>
+            </div>
+            <hr>
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <p class="text-secondary mb-0">{{ booking.seats }} Seat(s)</p>
+                    <p class="fw-bold fs-5 text-primary mb-0">${{ booking.totalPrice|floatformat:2 }}</p>
+                </div>
+                <small class="text-secondary">Booked on: {{ booking.bookingTime|date:"M d, Y" }}</small>
+            </div>
+        </div>
+    </div>
+    {% endwith %}
+    {% endif %}
 </div>
+<style>
+  @keyframes fade-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate-fade-in {
+    animation: fade-in 0.5s ease-out forwards;
+  }
+</style>
 {% endblock %}

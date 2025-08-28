@@ -1,64 +1,80 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container my-5">
-    <h1 class="mb-4">All Travel Options</h1>
-
-    <div class="card card-body mb-4">
-        <form method="get" class="row g-3">
-            <div class="col-md-5">
-                <input type="text" name="source" class="form-control" placeholder="From" value="{{ request.GET.source }}">
-            </div>
-            <div class="col-md-5">
-                <input type="text" name="destination" class="form-control" placeholder="To" value="{{ request.GET.destination }}">
-            </div>
-            <div class="col-md-2 d-grid">
-                <button class="btn btn-primary" type="submit">Filter</button>
+<div class="card shadow-sm mb-4">
+    <div class="card-body p-4">
+        <h2 class="card-title fw-bold text-body-emphasis mb-3">Find your next trip</h2>
+        <form method="get" action="">
+            <div class="row g-2">
+                <div class="col-md-4 col-lg-3">{{ form.id }}</div>
+                <div class="col-md-4 col-lg-3">{{ form.source }}</div>
+                <div class="col-md-4 col-lg-3">{{ form.destination }}</div>
+                <div class="col-md-4 col-lg-3">{{ form.type }}</div>
+                <div class="col-md-4 col-lg-3">{{ form.date }}</div>
+                <div class="col-md-4 col-lg-3">{{ form.time }}</div>
+                <div class="col-md-4 col-lg-3">{{ form.min_price }}</div>
+                <div class="col-md-4 col-lg-3">{{ form.max_price }}</div>
+                <div class="col-md-4 col-lg-3">{{ form.min_seats }}</div>
+                <div class="col-md-4 col-lg-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">Filter</button>
+                </div>
+                 <div class="col-md-4 col-lg-3 d-flex align-items-end">
+                    <a href="{% url 'travel_list' %}" class="btn btn-outline-secondary w-100">Clear</a>
+                </div>
             </div>
         </form>
     </div>
-
-    <div class="table-responsive">
-        <table class="table table-hover align-middle">
-            <thead class="table-light">
-                <tr>
-                    <th>ID</th>
-                    <th>Type</th>
-                    <th>From</th>
-                    <th>To</th>
-                    <th>Departure</th>
-                    <th>Price</th>
-                    <th>Seats Left</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for option in travel_options %}
-                <tr onclick="window.location='{% url 'travel_detail' option.id %}';" style="cursor: pointer;">
-                    <td class="fw-bold text-primary">{{ option.id }}</td>
-                    <td>
-                        <i class="bi {% if option.type == 'Flight' %}bi-airplane{% elif option.type == 'Train' %}bi-train-front{% else %}bi-bus-front{% endif %} me-2"></i>
-                        {{ option.type }}
-                    </td>
-                    <td>{{ option.source }}</td>
-                    <td>{{ option.destination }}</td>
-                    <td>{{ option.departureTime|date:"F d, P" }}</td>
-                    <td class="fw-bold">${{ option.price|floatformat:2 }}</td>
-                    <td>
-                        <span class="badge 
-                            {% if option.availableSeats > 20 %}bg-success-subtle text-success-emphasis
-                            {% elif option.availableSeats > 0 %}bg-warning-subtle text-warning-emphasis
-                            {% else %}bg-danger-subtle text-danger-emphasis{% endif %}">
-                            {{ option.availableSeats }}
-                        </span>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="7" class="text-center p-5">No travel options found matching your criteria.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
 </div>
+
+{% if options %}
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    {% for option in options %}
+    <div class="col">
+        <div class="card h-100 shadow-sm card-hover">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <img src="{{ option.operatorLogo }}" alt="{{ option.operator }}" class="rounded-circle me-3" style="width: 40px; height: 40px;">
+                    <div>
+                        <h5 class="card-title mb-0">{{ option.operator }}</h5>
+                        <small class="text-muted">{{ option.type }}</small>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between align-items-center my-3">
+                    <div class="text-center">
+                        <p class="fw-bold fs-5 mb-0">{{ option.departureTime|time:"H:i" }}</p>
+                        <small class="text-muted">{{ option.source }}</small>
+                    </div>
+                    <div class="text-center text-muted">
+                        &rarr;
+                    </div>
+                    <div class="text-center">
+                        <p class="fw-bold fs-5 mb-0">{{ option.arrivalTime|time:"H:i" }}</p>
+                        <small class="text-muted">{{ option.destination }}</small>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center text-muted small">
+                    <i class="bi bi-calendar me-2"></i>
+                    <span>{{ option.departureTime|date:"M d, Y" }}</span>
+                </div>
+            </div>
+            <div class="card-footer bg-light d-flex justify-content-between align-items-center">
+                <div>
+                    <p class="fs-4 fw-bolder text-primary mb-0">${{ option.price|floatformat:2 }}</p>
+                    {% if option.availableSeats == 0 %}
+                        <small class="text-danger fw-semibold">Sold Out</small>
+                    {% else %}
+                        <small class="text-muted">{{ option.availableSeats }} seats left</small>
+                    {% endif %}
+                </div>
+                <a href="{% url 'travel_detail' option.id %}" class="btn btn-sm btn-outline-primary stretched-link">View Details</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="text-center py-5 card shadow-sm">
+    <h4 class="text-secondary">No travel options found matching your criteria.</h4>
+</div>
+{% endif %}
 {% endblock %}
