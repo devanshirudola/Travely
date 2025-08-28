@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="mb-4">
+        <a href="{% url 'travel_list' %}">&larr; Back to all travel options</a>
+    </div>
+    <div class="card shadow-sm">
+        <div class="card-header p-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <img src="{{ option.operatorLogo }}" alt="{{ option.operator }}" class="rounded-circle me-3" style="width: 64px; height: 64px;">
+                    <div>
+                        <h1 class="h3 mb-0">{{ option.operator }}</h1>
+                        <p class="text-muted mb-0">{{ option.type }} &middot; Trip ID: {{ option.id }}</p>
+                    </div>
+                </div>
+                <i class="bi {% if option.type == 'Flight' %}bi-airplane-fill{% elif option.type == 'Train' %}bi-train-front-fill{% else %}bi-bus-front-fill{% endif %}" style="font-size: 2.5rem;"></i>
+            </div>
+        </div>
+        <div class="card-body p-4">
+            <div class="row align-items-center text-center my-4">
+                <div class="col">
+                    <p class="text-muted mb-1">From</p>
+                    <h2 class="h4">{{ option.source }}</h2>
+                </div>
+                <div class="col-auto">
+                    <div class="text-muted">
+                        <i class="bi bi-clock"></i>
+                        {{ duration_hours }}h {{ duration_minutes }}m
+                    </div>
+                    <hr>
+                </div>
+                <div class="col">
+                     <p class="text-muted mb-1">To</p>
+                    <h2 class="h4">{{ option.destination }}</h2>
+                </div>
+            </div>
+
+            <div class="row text-center bg-light p-3 rounded">
+                <div class="col">
+                    <p class="text-muted mb-1">Departure</p>
+                    <strong>{{ option.departureTime|date:"F d, Y, P" }}</strong>
+                </div>
+                <div class="col">
+                    <p class="text-muted mb-1">Arrival</p>
+                    <strong>{{ option.arrivalTime|date:"F d, Y, P" }}</strong>
+                </div>
+            </div>
+
+            <h3 class="mt-5 mb-3">Key Information</h3>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="d-flex">
+                        <i class="bi bi-person-workspace fs-3 text-primary me-3"></i>
+                        <div>
+                            <h5 class="mb-1">Seat Type</h5>
+                            <p class="mb-0 text-muted">{{ option.seatType }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                     <div class="d-flex">
+                        <i class="bi bi-handbag-fill fs-3 text-primary me-3"></i>
+                        <div>
+                            <h5 class="mb-1">Baggage</h5>
+                            <p class="mb-0 text-muted">{{ option.baggageAllowance }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                     <div class="d-flex">
+                        <i class="bi bi-info-circle-fill fs-3 text-primary me-3"></i>
+                        <div>
+                            <h5 class="mb-1">Policy</h5>
+                            <p class="mb-0 text-muted">{{ option.cancellationPolicy }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer bg-light p-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <span class="text-muted">Price per seat</span>
+                    <p class="h2 fw-bold mb-0 text-primary">${{ option.price|floatformat:2 }}</p>
+                    <small class="{% if option.availableSeats == 0 %}text-danger fw-bold{% else %}text-muted{% endif %}">
+                       {% if option.availableSeats > 0 %}
+                           {{ option.availableSeats }} of {{ option.totalSeats }} seats available
+                       {% else %}
+                           Sold Out
+                       {% endif %}
+                    </small>
+                </div>
+                {% if option.availableSeats > 0 %}
+                <a href="{% url 'book_trip' option.id %}" class="btn btn-primary btn-lg">Book Now</a>
+                {% else %}
+                <button class="btn btn-secondary btn-lg" disabled>Sold Out</button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

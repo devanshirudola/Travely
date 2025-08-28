@@ -1,0 +1,5 @@
+{
+  "name": "React Travel Booking",
+  "description": "A smart travel booking platform where users can explore, book, and manage trips. This is a frontend implementation using React and Tailwind CSS with mocked data.",
+  "requestFramePermissions": []
+}

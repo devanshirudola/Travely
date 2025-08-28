@@ -1,0 +1,34 @@
+<header class="p-3 mb-3 border-bottom bg-white shadow-sm sticky-top">
+  <div class="container">
+    <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+      <a href="{% url 'home' %}" class="d-flex align-items-center mb-2 mb-lg-0 text-dark text-decoration-none h4">
+        Travely
+      </a>
+
+      <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0 ms-4">
+        <li><a href="{% url 'home' %}" class="nav-link px-2 link-secondary">Explore</a></li>
+        <li><a href="{% url 'travel_list' %}" class="nav-link px-2 link-dark">Travel List</a></li>
+        <li><a href="{% url 'my_bookings' %}" class="nav-link px-2 link-dark">My Bookings</a></li>
+        <li><a href="{% url 'booking_status' %}" class="nav-link px-2 link-dark">Booking Status</a></li>
+      </ul>
+
+      <div class="text-end">
+        {% if user.is_authenticated %}
+        <div class="dropdown">
+          <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+             Hi, {{ user.first_name|default:user.username }}!
+          </a>
+          <ul class="dropdown-menu text-small" aria-labelledby="dropdownUser1">
+            <li><a class="dropdown-item" href="{% url 'profile' %}">Profile</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="{% url 'logout' %}">Sign out</a></li>
+          </ul>
+        </div>
+        {% else %}
+        <a href="{% url 'login' %}" class="btn btn-outline-primary me-2">Login</a>
+        <a href="{% url 'register' %}" class="btn btn-primary">Sign-up</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</header>
